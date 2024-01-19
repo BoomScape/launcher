@@ -21,18 +21,18 @@ fi
 
 echo "$WIN32_CHKSUM win32_jre.zip" | sha256sum -c
 
-cp native/build-x86/src/Release/BoomScape.exe build/win-x86/
-cp target/BoomScape.jar build/win-x86/
+cp native/build-x86/src/Release/BoomScapeTestServer.exe build/win-x86/
+cp target/BoomScapeTestServer.jar build/win-x86/
 cp packr/win-x86-config.json build/win-x86/config.json
 cp liblauncher/build32/Release/launcher_x86.dll build/win-x86/
 
 unzip win32_jre.zip
 mv jdk-$WIN32_VERSION-jre build/win-x86/jre
 
-echo BoomScape.exe 32bit sha256sum
-sha256sum build/win-x86/BoomScape.exe
+echo BoomScapeTestServer.exe 32bit sha256sum
+sha256sum build/win-x86/BoomScapeTestServer.exe
 
-dumpbin //HEADERS build/win-x86/BoomScape.exe
+dumpbin //HEADERS build/win-x86/BoomScapeTestServer.exe
 
 # We use the filtered iss file
 iscc target/filtered-resources/runelite32.iss
