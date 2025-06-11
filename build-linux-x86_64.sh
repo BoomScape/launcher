@@ -58,4 +58,4 @@ chmod +x appimagetool-x86_64.AppImage
 	build/linux-x64/ \
 	BoomPS.AppImage
 
-./RuneLite.AppImage --help
+./BoomPS.AppImage --help
