@@ -78,6 +78,8 @@ jobs:
         cache: gradle
     - name: build
       run: ./gradlew build -P RUNELITE_BUILD=$RUNELITE_PROFILE
+    - name: Check build output
+      run: ls -la build/libs/
     - run: ./build-linux-x86_64.sh
     - run: ./build-linux-aarch64.sh
     - uses: actions/upload-artifact@v4
