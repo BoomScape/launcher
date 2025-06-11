@@ -5,6 +5,9 @@ set -e
 APPBASE="build/macos-aarch64/BoomPS.app"
 
 build() {
+    echo Launcher sha256sum
+    shasum -a 256 build/libs/RuneLite.jar
+
     pushd native
     cmake -DCMAKE_OSX_ARCHITECTURES=arm64 -B build-aarch64 .
     cmake --build build-aarch64 --config Release
@@ -24,9 +27,9 @@ build() {
     mkdir -p $APPBASE/Contents/{MacOS,Resources}
 
     cp native/build-aarch64/src/BoomPS $APPBASE/Contents/MacOS/
-    cp target/BoomPS.jar $APPBASE/Contents/Resources/
+    cp build/libs/BoomPS.jar $APPBASE/Contents/Resources/
     cp packr/macos-aarch64-config.json $APPBASE/Contents/Resources/config.json
-    cp target/filtered-resources/Info.plist $APPBASE/Contents/
+    cp build/filtered-resources/Info.plist $APPBASE/Contents/
     cp osx/runelite.icns $APPBASE/Contents/Resources/icons.icns
 
     tar zxf mac_aarch64_jre.tar.gz

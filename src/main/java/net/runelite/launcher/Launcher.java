@@ -35,7 +35,6 @@ import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.common.hash.HashingOutputStream;
-import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -47,9 +46,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -88,16 +88,21 @@ import org.slf4j.LoggerFactory;
 @Slf4j
 public class Launcher
 {
-	private static final File RUNELITE_DIR = new File(System.getProperty("user.home"), ".boomps");
-	public static final File LOGS_DIR = new File(RUNELITE_DIR, "logs");
-	private static final File REPO_DIR = new File(RUNELITE_DIR, "repository2");
+	static final File RUNELITE_DIR = new File(System.getProperty("user.home"), ".boomps");
+    static final File LOGS_DIR = new File(RUNELITE_DIR, "logs");
+	static final File REPO_DIR = new File(RUNELITE_DIR, "repository2");
 	public static final File CRASH_FILES = new File(LOGS_DIR, "jvm_crash_pid_%p.log");
 	private static final String USER_AGENT = "BoomPS/" + LauncherProperties.getVersion();
 	static final String LAUNCHER_EXECUTABLE_NAME_WIN = "BoomPS.exe";
 	static final String LAUNCHER_EXECUTABLE_NAME_OSX = "BoomPS";
+	static boolean nativesLoaded;
 
-	public static void main(String[] args)
+	private static HttpClient httpClient;
+
+	private static OptionSet parseArgs(String[] args)
 	{
+		args = parseApplicationURI(args);
+
 		OptionParser parser = new OptionParser(false);
 		parser.allowsUnrecognizedOptions();
 		parser.accepts("postinstall", "Perform post-install tasks");
@@ -152,6 +157,27 @@ public class Launcher
 			}
 			System.exit(0);
 		}
+
+		return options;
+	}
+
+	private static String[] parseApplicationURI(String[] args)
+	{
+		// runelite-jav://oldschool2.runescape.com:80/jav_config.ws
+		if (args.length > 0 && args[0].startsWith("runelite-jav://"))
+		{
+			log.info("Launched using URI {}", args[0]);
+			return new String[]{
+				"--jav_config", args[0].replace("runelite-jav", "http")
+			};
+		}
+
+		return args;
+	}
+
+	public static void main(String[] args)
+	{
+		final OptionSet options = parseArgs(args);
 
 		if (options.has("configure"))
 		{
@@ -244,15 +270,22 @@ public class Launcher
 			if (settings.isSkipTlsVerification())
 			{
 				TrustManagerUtil.setupInsecureTrustManager();
+				// This is the only way to disable hostname verification with HttpClient - https://stackoverflow.com/a/52995420
+				System.setProperty("jdk.internal.httpclient.disableHostnameVerification", Boolean.TRUE.toString());
 			}
 			else
 			{
 				TrustManagerUtil.setupTrustManager();
 			}
 
+			// setup http client after the default SSLContext is set
+			httpClient = HttpClient.newBuilder()
+				.followRedirects(HttpClient.Redirect.ALWAYS)
+				.build();
+
 			if (postInstall)
 			{
-				postInstall();
+				postInstall(settings);
 				return;
 			}
 
@@ -278,6 +311,26 @@ public class Launcher
 					final String value = (String) p.get(key);
 					log.debug("  {}: {}", key, value);
 				}
+			}
+
+			// fix up permissions before potentially removing the RUNASADMIN compat key
+			if (FilesystemPermissions.check())
+			{
+				// check() opens an error dialog
+				return;
+			}
+
+			if (JagexLauncherCompatibility.check())
+			{
+				// check() opens an error dialog
+				return;
+			}
+
+			if (!REPO_DIR.exists() && !REPO_DIR.mkdirs())
+			{
+				log.error("unable to create directory {}", REPO_DIR);
+				SwingUtilities.invokeLater(() -> new FatalErrorDialog("Unable to create RuneLite directory " + REPO_DIR.getAbsolutePath() + ". Check your filesystem permissions are correct.").open());
+				return;
 			}
 
 			SplashScreen.stage(.05, null, "Downloading bootstrap");
@@ -313,14 +366,7 @@ public class Launcher
 			}
 
 			// update packr vmargs to the launcher vmargs from bootstrap.
-			PackrConfig.updateLauncherArgs(bootstrap);
-
-			if (!REPO_DIR.exists() && !REPO_DIR.mkdirs())
-			{
-				log.error("unable to create repo directory {}", REPO_DIR);
-				SwingUtilities.invokeLater(() -> new FatalErrorDialog("Unable to create BoomPS directory " + REPO_DIR.getAbsolutePath() + ". Check your filesystem permissions are correct.").open());
-				return;
-			}
+			PackrConfig.updateLauncherArgs(bootstrap, settings);
 
 			// Determine artifacts for this OS
 			List<Artifact> artifacts = Arrays.stream(bootstrap.getArtifacts())
@@ -447,34 +493,55 @@ public class Launcher
 
 	private static Bootstrap getBootstrap() throws IOException, CertificateException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, VerificationException
 	{
-		URL u = new URL(LauncherProperties.getBootstrap());
-		URL signatureUrl = new URL(LauncherProperties.getBootstrapSig());
+		HttpRequest bootstrapReq = HttpRequest.newBuilder()
+			.uri(URI.create(LauncherProperties.getBootstrap()))
+			.header("User-Agent", USER_AGENT)
+			.GET()
+			.build();
 
-		URLConnection conn = u.openConnection();
-		URLConnection signatureConn = signatureUrl.openConnection();
+		HttpRequest bootstrapSigReq = HttpRequest.newBuilder()
+			.uri(URI.create(LauncherProperties.getBootstrapSig()))
+			.header("User-Agent", USER_AGENT)
+			.GET()
+			.build();
 
-		conn.setRequestProperty("User-Agent", USER_AGENT);
-		signatureConn.setRequestProperty("User-Agent", USER_AGENT);
+		HttpResponse<byte[]> bootstrapResp, bootstrapSigResp;
 
-		try (InputStream i = conn.getInputStream();
-			InputStream signatureIn = signatureConn.getInputStream())
+		try
 		{
-			byte[] bytes = ByteStreams.toByteArray(i);
-			byte[] signature = ByteStreams.toByteArray(signatureIn);
+			bootstrapResp = httpClient.send(bootstrapReq, HttpResponse.BodyHandlers.ofByteArray());
+			bootstrapSigResp = httpClient.send(bootstrapSigReq, HttpResponse.BodyHandlers.ofByteArray());
+		}
+		catch (InterruptedException ex)
+		{
+			throw new IOException(ex);
+		}
 
-			Certificate certificate = getCertificate();
-			Signature s = Signature.getInstance("SHA256withRSA");
-			s.initVerify(certificate);
-			s.update(bytes);
+		if (bootstrapResp.statusCode() != 200)
+		{
+			throw new IOException("Unable to download bootstrap (status code " + bootstrapResp.statusCode() + "): " + new String(bootstrapResp.body()));
+		}
+
+		if (bootstrapSigResp.statusCode() != 200)
+		{
+			throw new IOException("Unable to download bootstrap signature (status code " + bootstrapSigResp.statusCode() + "): " + new String(bootstrapSigResp.body()));
+		}
+
+		final byte[] bytes = bootstrapResp.body();
+		final byte[] signature = bootstrapSigResp.body();
+
+		Certificate certificate = getCertificate();
+		Signature s = Signature.getInstance("SHA256withRSA");
+		s.initVerify(certificate);
+		s.update(bytes);
 
 //			if (!s.verify(signature))
 //			{
 //				throw new VerificationException("Unable to verify bootstrap signature");
 //			}
 
-			Gson g = new Gson();
-			return g.fromJson(new InputStreamReader(new ByteArrayInputStream(bytes)), Bootstrap.class);
-		}
+		Gson g = new Gson();
+		return g.fromJson(new InputStreamReader(new ByteArrayInputStream(bytes)), Bootstrap.class);
 	}
 
 	private static boolean jvmOutdated(Bootstrap bootstrap)
@@ -548,6 +615,11 @@ public class Launcher
 	private static List<String> getJvmArgs(LauncherSettings settings)
 	{
 		var args = new ArrayList<>(settings.jvmArguments);
+
+		if (settings.ipv4)
+		{
+			args.add("-Djava.net.preferIPv4Stack=true");
+		}
 
 		var envArgs = System.getenv("RUNELITE_VMARGS");
 		if (!Strings.isNullOrEmpty(envArgs))
@@ -829,21 +901,30 @@ public class Launcher
 
 	static void download(String path, String hash, IntConsumer progress, OutputStream out) throws IOException, VerificationException
 	{
-		URL url = new URL(path);
-		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		conn.setRequestProperty("User-Agent", USER_AGENT);
-		conn.getResponseCode();
+		HttpRequest request = HttpRequest.newBuilder()
+			.uri(URI.create(path))
+			.header("User-Agent", USER_AGENT)
+			.GET()
+			.build();
 
-		InputStream err = conn.getErrorStream();
-		if (err != null)
+		HttpResponse<InputStream> response;
+		try
 		{
-			err.close();
-			throw new IOException("Unable to download " + path + " - " + conn.getResponseMessage());
+			response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+		}
+		catch (InterruptedException ex)
+		{
+			throw new IOException(ex);
+		}
+
+		if (response.statusCode() != 200)
+		{
+			throw new IOException("Unable to download " + path + " (status code " + response.statusCode() + ")");
 		}
 
 		int downloaded = 0;
 		HashingOutputStream hout = new HashingOutputStream(Hashing.sha256(), out);
-		try (InputStream in = conn.getInputStream())
+		try (InputStream in = response.body())
 		{
 			int i;
 			byte[] buffer = new byte[1024 * 1024];
@@ -868,7 +949,7 @@ public class Launcher
 		return Runtime.version().feature() >= 16;
 	}
 
-	private static void postInstall()
+	private static void postInstall(LauncherSettings settings)
 	{
 		Bootstrap bootstrap;
 		try
@@ -881,7 +962,7 @@ public class Launcher
 			return;
 		}
 
-		PackrConfig.updateLauncherArgs(bootstrap);
+		PackrConfig.updateLauncherArgs(bootstrap, settings);
 
 		log.info("Performed postinstall steps");
 	}
@@ -904,6 +985,7 @@ public class Launcher
 		{
 			System.loadLibrary("launcher_" + arch);
 			log.debug("Loaded launcher native launcher_{}", arch);
+			nativesLoaded = true;
 		}
 		catch (Error ex)
 		{
@@ -935,4 +1017,14 @@ public class Launcher
 	private static native void setBlacklistedDlls(String[] dlls);
 
 	static native String regQueryString(String subKey, String value);
+
+	// Requires elevated permissions. Current valid inputs for key are: "HKCU" and "HKLM"
+	static native boolean regDeleteValue(String key, String subKey, String value);
+
+	static native boolean isProcessElevated(long pid);
+
+	static native void setFileACL(String folder, String[] sids);
+	static native String getUserSID();
+
+	static native long runas(String path, String args);
 }
