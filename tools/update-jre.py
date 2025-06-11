@@ -18,7 +18,7 @@ def fetch_jre(prefix, version_range, arch, os):
     }
 
     req = urllib.request.Request(url + urllib.parse.urlencode(params))
-    req.add_header('User-agent', 'BoomScape') # api seems to block urllib ua
+    req.add_header('User-agent', 'BoomPS') # api seems to block urllib ua
 
     ctx = urllib.request.urlopen(req)
 

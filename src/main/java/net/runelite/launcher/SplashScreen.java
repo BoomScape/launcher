@@ -75,7 +75,7 @@ public class SplashScreen extends JFrame implements ActionListener
 			logo = ImageIO.read(in);
 		}
 
-		setTitle("BoomScape Launcher");
+		setTitle("BoomPS Launcher");
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setUndecorated(true);

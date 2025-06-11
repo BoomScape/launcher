@@ -36,7 +36,7 @@ public class UpdaterTest
 		try (InputStream in = getClass().getResourceAsStream("/hdiutil-mount-plist.xml"))
 		{
 			String mountPoint = Updater.parseHdiutilPlist(in);
-			assertEquals("/Volumes/BoomScape", mountPoint);
+			assertEquals("/Volumes/BoomPS", mountPoint);
 		}
 	}
 }

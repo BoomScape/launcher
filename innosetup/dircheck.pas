@@ -3,7 +3,7 @@ var
     defaultPath: String;
     currentPath: String;
 begin
-    defaultPath := ExpandConstant('{localappdata}\BoomScape');
+    defaultPath := ExpandConstant('{localappdata}\BoomPS');
     { this defaults to the current installed location read from the registry }
     currentPath := GetWizardForm.DirEdit.Text;
     if defaultPath <> currentPath then begin

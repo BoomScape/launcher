@@ -68,7 +68,7 @@ class ReflectionLauncher
 				log.error("Unable to launch client", ex);
 			}
 		});
-		thread.setName("BoomScape");
+		thread.setName("BoomPS");
 		thread.start();
 	}
 }

@@ -62,9 +62,9 @@ jobs:
       with:
         name: windows
         path: |
-          BoomScapeSetup.exe
-          BoomScapeSetup32.exe
-          BoomScapeSetupAArch64.exe
+          BoomPS.exe
+          BoomPS32.exe
+          BoomPSAArch64.exe
         if-no-files-found: error
   linux:
     runs-on: ubuntu-20.04
@@ -96,14 +96,14 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: jar
-        path: target/BoomScape.jar
+        path: target/BoomPS.jar
         if-no-files-found: error
     - uses: actions/upload-artifact@v3
       with:
         name: linux
         path: |
-          BoomScape.AppImage
-          BoomScape-aarch64.AppImage
+          BoomPS.AppImage
+          BoomPS-aarch64.AppImage
         if-no-files-found: error
   macos:
     runs-on: macos-11
@@ -145,13 +145,13 @@ jobs:
       run: ./build-osx-aarch64.sh --build --dmg
     # tar app to keep permissions correct
     - name: tar app
-      run: tar -cf app.tar build/macos-x64/BoomScape.app build/macos-aarch64/BoomScape.app build-osx-x64.sh build-osx-aarch64.sh osx/signing.entitlements
+      run: tar -cf app.tar build/macos-x64/BoomPS.app build/macos-aarch64/BoomPS.app build-osx-x64.sh build-osx-aarch64.sh osx/signing.entitlements
     - uses: actions/upload-artifact@v3
       with:
         name: macos-dmg
         path: |
-          BoomScape-x64.dmg
-          BoomScape-aarch64.dmg
+          BoomPS-x64.dmg
+          BoomPS-aarch64.dmg
         if-no-files-found: error
     - uses: actions/upload-artifact@v3
       with:

@@ -81,15 +81,15 @@ jlink \
   --add-modules jdk.xml.dom \
   --add-modules jdk.zipfs
 
-cp native/build-aarch64/src/Release/BoomScape.exe build/win-aarch64/
-cp target/BoomScape.jar build/win-aarch64/
+cp native/build-aarch64/src/Release/BoomPS.exe build/win-aarch64/
+cp target/BoomPS.jar build/win-aarch64/
 cp packr/win-aarch64-config.json build/win-aarch64/config.json
 cp liblauncher/buildaarch64/Release/launcher_aarch64.dll build/win-aarch64/
 
-echo BoomScape.exe aarch64 sha256sum
-sha256sum build/win-aarch64/BoomScape.exe
+echo BoomPS.exe aarch64 sha256sum
+sha256sum build/win-aarch64/BoomPS.exe
 
-dumpbin //HEADERS build/win-aarch64/BoomScape.exe
+dumpbin //HEADERS build/win-aarch64/BoomPS.exe
 
 # We use the filtered iss file
 iscc target/filtered-resources/runeliteaarch64.iss
