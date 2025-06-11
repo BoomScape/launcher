@@ -3,7 +3,7 @@
 set -e
 
 echo Launcher sha256sum
-sha256sum build/libs/RuneLite.jar
+sha256sum build/libs/BoomPS.jar
 
 cmake -S liblauncher -B liblauncher/buildaarch64 -A ARM64
 cmake --build liblauncher/buildaarch64 --config Release

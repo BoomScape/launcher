@@ -6,7 +6,7 @@ APPBASE="build/macos-x64/BoomPS.app"
 
 build() {
     echo Launcher sha256sum
-    shasum -a 256 build/libs/RuneLite.jar
+    shasum -a 256 build/libs/BoomPS.jar
 
     pushd native
     cmake -DCMAKE_OSX_ARCHITECTURES=x86_64 -B build-x64 .
