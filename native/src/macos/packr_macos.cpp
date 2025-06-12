@@ -132,17 +132,29 @@ bool loadJNIFunctions(GetDefaultJavaVMInitArgs* getDefaultJavaVMInitArgs, Create
         return false;
     }
 
-    string basePath = string(resourcesDir) + "/jre/lib/";
+    string basePathResources = string(resourcesDir) + "/jre/lib/";
+    string basePathFallback = "jre/lib/"; // fallback to old cwd relative
 
-    string path = basePath + "libjli.dylib";
+    string path = basePathResources + "libjli.dylib";
     void* handle = dlopen(path.c_str(), RTLD_LAZY);
     if (handle == NULL) {
-        path = basePath + "jli/libjli.dylib";
+        path = basePathResources + "jli/libjli.dylib";
+        handle = dlopen(path.c_str(), RTLD_LAZY);
+    }
+
+    if (handle == NULL) {
+        // try old style layout (cwd relative)
+        path = basePathFallback + "libjli.dylib";
         handle = dlopen(path.c_str(), RTLD_LAZY);
         if (handle == NULL) {
-            cerr << dlerror() << endl;
-            return false;
+            path = basePathFallback + "jli/libjli.dylib";
+            handle = dlopen(path.c_str(), RTLD_LAZY);
         }
+    }
+
+    if (handle == NULL) {
+        cerr << dlerror() << endl;
+        return false;
     }
 
     *getDefaultJavaVMInitArgs = (GetDefaultJavaVMInitArgs)dlsym(handle, "JNI_GetDefaultJavaVMInitArgs");
