@@ -88,13 +88,13 @@ import org.slf4j.LoggerFactory;
 @Slf4j
 public class Launcher
 {
-	static final File RUNELITE_DIR = new File(System.getProperty("user.home"), ".boomps");
+	static final File RUNELITE_DIR = new File(System.getProperty("user.home"), ".boompstestserver");
 	static final File LOGS_DIR = new File(RUNELITE_DIR, "logs");
 	static final File REPO_DIR = new File(RUNELITE_DIR, "repository2");
 	public static final File CRASH_FILES = new File(LOGS_DIR, "jvm_crash_pid_%p.log");
-	private static final String USER_AGENT = "BoomPS/" + LauncherProperties.getVersion();
-	static final String LAUNCHER_EXECUTABLE_NAME_WIN = "BoomPS.exe";
-	static final String LAUNCHER_EXECUTABLE_NAME_OSX = "BoomPS";
+	private static final String USER_AGENT = "BoomPSTestServer/" + LauncherProperties.getVersion();
+	static final String LAUNCHER_EXECUTABLE_NAME_WIN = "BoomPSTestServer.exe";
+	static final String LAUNCHER_EXECUTABLE_NAME_OSX = "BoomPSTestServer";
 	static boolean nativesLoaded;
 
 	private static HttpClient httpClient;
@@ -140,7 +140,7 @@ public class Launcher
 		{
 			log.error("unable to parse arguments", ex);
 			SwingUtilities.invokeLater(() ->
-				new FatalErrorDialog("BoomPS was unable to parse the provided application arguments: " + ex.getMessage())
+				new FatalErrorDialog("BoomPSTestServer was unable to parse the provided application arguments: " + ex.getMessage())
 					.open());
 			throw ex;
 		}
@@ -229,7 +229,7 @@ public class Launcher
 			final Map<String, String> jvmProps = new LinkedHashMap<>();
 			if (settings.scale != null)
 			{
-				// This calls SetProcessDPIAware(). Since the BoomPS.exe manifest is DPI unaware
+				// This calls SetProcessDPIAware(). Since the BoomPSTestServer.exe manifest is DPI unaware
 				// Windows will scale the application if this isn't called. Thus the default scaling
 				// mode is Windows scaling due to being DPI unaware.
 				// https://docs.microsoft.com/en-us/windows/win32/hidpi/high-dpi-desktop-application-development-on-windows
@@ -259,7 +259,7 @@ public class Launcher
 				jvmProps.put("runelite.insecure-skip-tls-verification", "true");
 			}
 
-			log.info("BoomPS Launcher version {}", LauncherProperties.getVersion());
+			log.info("BoomPSTestServer Launcher version {}", LauncherProperties.getVersion());
 			log.info("Launcher configuration:" + System.lineSeparator() + "{}", settings.configurationStr());
 			log.info("OS name: {}, version: {}, arch: {}", System.getProperty("os.name"), System.getProperty("os.version"), System.getProperty("os.arch"));
 			log.info("Using hardware acceleration mode: {}", hardwareAccelMode);
@@ -329,7 +329,7 @@ public class Launcher
 			if (!REPO_DIR.exists() && !REPO_DIR.mkdirs())
 			{
 				log.error("unable to create directory {}", REPO_DIR);
-				SwingUtilities.invokeLater(() -> new FatalErrorDialog("Unable to create BoomPS directory " + REPO_DIR.getAbsolutePath() + ". Check your filesystem permissions are correct.").open());
+				SwingUtilities.invokeLater(() -> new FatalErrorDialog("Unable to create BoomPSTestServer directory " + REPO_DIR.getAbsolutePath() + ". Check your filesystem permissions are correct.").open());
 				return;
 			}
 
@@ -467,7 +467,7 @@ public class Launcher
 			if (!postInstall)
 			{
 				SwingUtilities.invokeLater(() ->
-					new FatalErrorDialog("BoomPS has encountered an unexpected error during startup.")
+					new FatalErrorDialog("BoomPSTestServer has encountered an unexpected error during startup.")
 						.open());
 			}
 		}
@@ -566,7 +566,7 @@ public class Launcher
 		if (launcherTooOld)
 		{
 			SwingUtilities.invokeLater(() ->
-				new FatalErrorDialog("Your launcher is too old to start BoomPS. Please download and install a more " +
+				new FatalErrorDialog("Your launcher is too old to start BoomPSTestServer. Please download and install a more " +
 					"recent one from boom-ps.com.")
 					.addButton("boom-ps.com", () -> LinkBrowser.browse(LauncherProperties.getDownloadLink()))
 					.open());
@@ -575,7 +575,7 @@ public class Launcher
 		if (jvmTooOld)
 		{
 			SwingUtilities.invokeLater(() ->
-				new FatalErrorDialog("Your Java installation is too old. BoomPS now requires Java " +
+				new FatalErrorDialog("Your Java installation is too old. BoomPSTestServer now requires Java " +
 					bootstrap.getRequiredJVMVersion() + " to run. You can get a platform specific version from boom-ps.com," +
 					" or install a newer version of Java.")
 					.addButton("boom-ps.com", () -> LinkBrowser.browse(LauncherProperties.getDownloadLink()))

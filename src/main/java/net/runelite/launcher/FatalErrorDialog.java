@@ -118,7 +118,7 @@ public class FatalErrorDialog extends JDialog
 			}
 		});
 
-		setTitle("Fatal error starting BoomPS");
+		setTitle("Fatal error starting BoomPSTestServer");
 		setLayout(new BorderLayout());
 
 		Container pane = getContentPane();
@@ -128,7 +128,7 @@ public class FatalErrorDialog extends JDialog
 		leftPane.setBackground(DARKER_GRAY_COLOR);
 		leftPane.setLayout(new BorderLayout());
 
-		JLabel title = new JLabel("There was a fatal error starting BoomPS");
+		JLabel title = new JLabel("There was a fatal error starting BoomPSTestServer");
 		title.setForeground(Color.WHITE);
 		title.setFont(font.deriveFont(16.f));
 		title.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -226,7 +226,7 @@ public class FatalErrorDialog extends JDialog
 
 			if (err instanceof VerificationException)
 			{
-				new FatalErrorDialog(formatExceptionMessage("BoomPS was unable to verify the security of its connection to the internet while " +
+				new FatalErrorDialog(formatExceptionMessage("BoomPSTestServer was unable to verify the security of its connection to the internet while " +
 					action + ". You may have a misbehaving antivirus, internet service provider, a proxy, or an incomplete" +
 					" java installation.", err))
 					.open();
@@ -235,7 +235,7 @@ public class FatalErrorDialog extends JDialog
 
 			if (err instanceof SocketException) // includes ConnectException
 			{
-				String message = "BoomPS is unable to connect to a required server while " + action + ".";
+				String message = "BoomPSTestServer is unable to connect to a required server while " + action + ".";
 
 				// hardcoded error message from PlainSocketImpl.c for WSAEADDRNOTAVAIL
 				if (err.getMessage() != null && err.getMessage().equals("connect: Address is invalid on local machine, or port is not valid on remote machine"))
@@ -268,7 +268,7 @@ public class FatalErrorDialog extends JDialog
 
 			if (err instanceof UnknownHostException || err instanceof UnresolvedAddressException)
 			{
-				new FatalErrorDialog(formatExceptionMessage("BoomPS is unable to resolve the address of a required server while " + action + ". " +
+				new FatalErrorDialog(formatExceptionMessage("BoomPSTestServer is unable to resolve the address of a required server while " + action + ". " +
 					"Your DNS resolver may be misconfigured, pointing to an inaccurate resolver, or your internet connection may " +
 					"be down.", err))
 					.addButton("Change your DNS resolver", () -> LinkBrowser.browse(LauncherProperties.getDNSChangeLink()))
@@ -280,13 +280,13 @@ public class FatalErrorDialog extends JDialog
 			{
 				if (err instanceof CertificateNotYetValidException || err instanceof CertificateExpiredException)
 				{
-					new FatalErrorDialog(formatExceptionMessage("BoomPS was unable to verify the certificate of a required server while " + action + ". " +
+					new FatalErrorDialog(formatExceptionMessage("BoomPSTestServer was unable to verify the certificate of a required server while " + action + ". " +
 						"Check your system clock is correct.", err))
 						.open();
 					return;
 				}
 
-				new FatalErrorDialog(formatExceptionMessage("BoomPS was unable to verify the certificate of a required server while " + action + ". " +
+				new FatalErrorDialog(formatExceptionMessage("BoomPSTestServer was unable to verify the certificate of a required server while " + action + ". " +
 					"This can be caused by a firewall, antivirus, malware, misbehaving internet service provider, or a proxy.", err))
 					.open();
 				return;
@@ -294,14 +294,14 @@ public class FatalErrorDialog extends JDialog
 
 			if (err instanceof SSLException)
 			{
-				new FatalErrorDialog(formatExceptionMessage("BoomPS was unable to establish a SSL/TLS connection with a required server while " + action + ". " +
+				new FatalErrorDialog(formatExceptionMessage("BoomPSTestServer was unable to establish a SSL/TLS connection with a required server while " + action + ". " +
 					"This can be caused by a firewall, antivirus, malware, misbehaving internet service provider, or a proxy.", err))
 					.open();
 				return;
 			}
 		}
 
-		new FatalErrorDialog(formatExceptionMessage("BoomPS encountered a fatal error while " + action + ".", error)).open();
+		new FatalErrorDialog(formatExceptionMessage("BoomPSTestServer encountered a fatal error while " + action + ".", error)).open();
 	}
 
 	private static String formatExceptionMessage(String message, Throwable err)

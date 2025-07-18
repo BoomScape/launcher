@@ -3,7 +3,7 @@
 set -e
 
 echo Launcher sha256sum
-sha256sum build/libs/BoomPS.jar
+sha256sum build/libs/BoomPSTestServer.jar
 
 cmake -S liblauncher -B liblauncher/build64 -A x64
 cmake --build liblauncher/build64 --config Release
@@ -24,18 +24,18 @@ fi
 
 echo "$WIN64_CHKSUM win64_jre.zip" | sha256sum -c
 
-cp native/build-x64/src/Release/BoomPS.exe build/win-x64/
-cp build/libs/BoomPS.jar build/win-x64/
+cp native/build-x64/src/Release/BoomPSTestServer.exe build/win-x64/
+cp build/libs/BoomPSTestServer.jar build/win-x64/
 cp packr/win-x64-config.json build/win-x64/config.json
 cp liblauncher/build64/Release/launcher_amd64.dll build/win-x64/
 
 unzip win64_jre.zip
 mv jdk-$WIN64_VERSION-jre build/win-x64/jre
 
-echo BoomPS.exe 64bit sha256sum
-sha256sum build/win-x64/BoomPS.exe
+echo BoomPSTestServer.exe 64bit sha256sum
+sha256sum build/win-x64/BoomPSTestServer.exe
 
-dumpbin //HEADERS build/win-x64/BoomPS.exe
+dumpbin //HEADERS build/win-x64/BoomPSTestServer.exe
 
 # We use the filtered iss file
 iscc build/filtered-resources/runelite.iss

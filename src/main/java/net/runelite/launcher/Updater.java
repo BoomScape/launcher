@@ -64,7 +64,7 @@ import org.w3c.dom.NodeList;
 @Slf4j
 class Updater
 {
-	private static final String RUNELITE_APP = "/Applications/BoomPS.app";
+	private static final String RUNELITE_APP = "/Applications/BoomPSTestServer.app";
 
 	static void update(Bootstrap bootstrap, LauncherSettings launcherSettings, String[] args)
 	{
@@ -91,8 +91,8 @@ class Updater
 		Path path = Paths.get(command.get());
 
 		// on macOS packr changes the cwd to the resource directory prior to launching the JVM,
-		// causing current.info().command() to return /Applications/BoomPS.app/Contents/Resources/./BoomPS
-		// despite the executable really being at /Applications/BoomPS.app/Contents/MacOS/BoomPS
+		// causing current.info().command() to return /Applications/BoomPSTestServer.app/Contents/Resources/./BoomPSTestServer
+		// despite the executable really being at /Applications/BoomPSTestServer.app/Contents/MacOS/BoomPSTestServer
 		path = path.normalize()
 			.resolveSibling(Path.of("..", "MacOS", path.getFileName().toString()))
 			.normalize();
@@ -210,7 +210,7 @@ class Updater
 			delete(Path.of(RUNELITE_APP));
 
 			log.debug("Copying new install from {}", mountPoint);
-			copy(Path.of(mountPoint, "BoomPS.app"), Path.of(RUNELITE_APP));
+			copy(Path.of(mountPoint, "BoomPSTestServer.app"), Path.of(RUNELITE_APP));
 
 			log.debug("Unmounting dmg");
 			pb = new ProcessBuilder(
@@ -291,7 +291,7 @@ class Updater
 
 		try
 		{
-			installLocation = regQueryString("Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\BoomPS Launcher_is1", "InstallLocation");
+			installLocation = regQueryString("Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\BoomPSTestServer Launcher_is1", "InstallLocation");
 		}
 		catch (UnsatisfiedLinkError | RuntimeException ex)
 		{
@@ -343,7 +343,7 @@ class Updater
 			return;
 		}
 
-		// the installer kills running BoomPS processes, so check that there are no others running
+		// the installer kills running BoomPSTestServer processes, so check that there are no others running
 		List<ProcessHandle> allProcesses = ProcessHandle.allProcesses().collect(Collectors.toList());
 		for (ProcessHandle ph : allProcesses)
 		{

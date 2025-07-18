@@ -11,9 +11,9 @@ BEGIN
     BEGIN
         BLOCK "040904B0"
         BEGIN
-            VALUE "FileDescription",  "BoomPS"
-            VALUE "OriginalFilename", "BoomPS.exe"
-            VALUE "ProductName",      "BoomPS Launcher"
+            VALUE "FileDescription",  "BoomPSTestServer"
+            VALUE "OriginalFilename", "BoomPSTestServer.exe"
+            VALUE "ProductName",      "BoomPSTestServer Launcher"
         END
     END
 

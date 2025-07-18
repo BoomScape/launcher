@@ -68,7 +68,7 @@ public class ConfigurationFrame extends JFrame
 
 	private ConfigurationFrame(LauncherSettings settings)
 	{
-		setTitle("BoomPS Launcher Configuration");
+		setTitle("BoomPSTestServer Launcher Configuration");
 
 		BufferedImage iconImage;
 		try (var in = ConfigurationFrame.class.getResourceAsStream(LauncherProperties.getRuneLite128()))

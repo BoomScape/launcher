@@ -3,7 +3,7 @@
 set -e
 
 echo Launcher sha256sum
-sha256sum build/libs/BoomPS.jar
+sha256sum build/libs/BoomPSTestServer.jar
 
 pushd native
 cmake -B build-x64 .
@@ -26,10 +26,10 @@ echo "$LINUX_AMD64_CHKSUM linux64_jre.tar.gz" | sha256sum -c
 # Note: Host umask may have checked out this directory with g/o permissions blank
 chmod -R u=rwX,go=rX appimage
 # ...ditto for the build process
-chmod 644 build/libs/BoomPS.jar
+chmod 644 build/libs/BoomPSTestServer.jar
 
-cp native/build-x64/src/BoomPS build/linux-x64/
-cp build/libs/BoomPS.jar build/linux-x64/
+cp native/build-x64/src/BoomPSTestServer build/linux-x64/
+cp build/libs/BoomPSTestServer.jar build/linux-x64/
 cp packr/linux-x64-config.json build/linux-x64/config.json
 cp build/filtered-resources/runelite.desktop build/linux-x64/
 cp appimage/runelite.png build/linux-x64/
@@ -41,11 +41,11 @@ pushd build/linux-x64/
 mkdir -p jre/lib/amd64/server/
 ln -s ../../server/libjvm.so jre/lib/amd64/server/ # packr looks for libjvm at this hardcoded path
 
-# Symlink AppRun -> BoomPS
-ln -s BoomPS AppRun
+# Symlink AppRun -> BoomPSTestServer
+ln -s BoomPSTestServer AppRun
 
-# Ensure BoomPS is executable to all users
-chmod 755 BoomPS
+# Ensure BoomPSTestServer is executable to all users
+chmod 755 BoomPSTestServer
 popd
 
 curl -z appimagetool-x86_64.AppImage -o appimagetool-x86_64.AppImage -L https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
@@ -56,6 +56,6 @@ chmod +x appimagetool-x86_64.AppImage
 ./appimagetool-x86_64.AppImage \
 	--runtime-file runtime-x86_64 \
 	build/linux-x64/ \
-	BoomPS.AppImage
+	BoomPSTestServer.AppImage
 
-./BoomPS.AppImage --help
+./BoomPSTestServer.AppImage --help

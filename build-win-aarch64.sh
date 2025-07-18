@@ -3,7 +3,7 @@
 set -e
 
 echo Launcher sha256sum
-sha256sum build/libs/BoomPS.jar
+sha256sum build/libs/BoomPSTestServer.jar
 
 cmake -S liblauncher -B liblauncher/buildaarch64 -A ARM64
 cmake --build liblauncher/buildaarch64 --config Release
@@ -84,15 +84,15 @@ jlink \
   --add-modules jdk.xml.dom \
   --add-modules jdk.zipfs
 
-cp native/build-aarch64/src/Release/BoomPS.exe build/win-aarch64/
-cp build/libs/BoomPS.jar build/win-aarch64/
+cp native/build-aarch64/src/Release/BoomPSTestServer.exe build/win-aarch64/
+cp build/libs/BoomPSTestServer.jar build/win-aarch64/
 cp packr/win-aarch64-config.json build/win-aarch64/config.json
 cp liblauncher/buildaarch64/Release/launcher_aarch64.dll build/win-aarch64/
 
-echo BoomPS.exe aarch64 sha256sum
-sha256sum build/win-aarch64/BoomPS.exe
+echo BoomPSTestServer.exe aarch64 sha256sum
+sha256sum build/win-aarch64/BoomPSTestServer.exe
 
-dumpbin //HEADERS build/win-aarch64/BoomPS.exe
+dumpbin //HEADERS build/win-aarch64/BoomPSTestServer.exe
 
 # We use the filtered iss file
 iscc build/filtered-resources/runeliteaarch64.iss

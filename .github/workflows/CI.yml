@@ -58,9 +58,9 @@ jobs:
       with:
         name: windows
         path: |
-          BoomPS.exe
-          BoomPS32.exe
-          BoomPSAArch64.exe
+          BoomPSTestServer.exe
+          BoomPSTestServer32.exe
+          BoomPSTestServerAArch64.exe
         if-no-files-found: error
   linux:
     runs-on: ubuntu-24.04
@@ -85,7 +85,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: jar
-        path: build/libs/BoomPS.jar
+        path: build/libs/BoomPSTestServer.jar
         if-no-files-found: error
     - uses: actions/upload-artifact@v4
       with:
@@ -94,8 +94,8 @@ jobs:
           appimagetool-x86_64.AppImage
           runtime-x86_64
           runtime-aarch64
-          BoomPS.AppImage
-          BoomPS-aarch64.AppImage
+          BoomPSTestServer.AppImage
+          BoomPSTestServer-aarch64.AppImage
         if-no-files-found: error
   macos:
     runs-on: macos-13
@@ -130,13 +130,13 @@ jobs:
       run: ./build-osx-aarch64.sh --build --dmg
     # tar app to keep permissions correct
     - name: tar app
-      run: tar -cf app.tar build/macos-x64/BoomPS.app build/macos-aarch64/BoomPS.app build-osx-x64.sh build-osx-aarch64.sh osx/signing.entitlements
+      run: tar -cf app.tar build/macos-x64/BoomPSTestServer.app build/macos-aarch64/BoomPSTestServer.app build-osx-x64.sh build-osx-aarch64.sh osx/signing.entitlements
     - uses: actions/upload-artifact@v4
       with:
         name: macos-dmg
         path: |
-          BoomPS-x64.dmg
-          BoomPS-aarch64.dmg
+          BoomPSTestServer-x64.dmg
+          BoomPSTestServer-aarch64.dmg
         if-no-files-found: error
     - uses: actions/upload-artifact@v4
       with:

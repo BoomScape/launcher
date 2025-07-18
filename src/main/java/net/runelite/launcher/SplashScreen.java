@@ -69,7 +69,7 @@ public class SplashScreen extends JFrame implements ActionListener
 
 	private SplashScreen() throws IOException
 	{
-		setTitle("BoomPS Launcher");
+		setTitle("BoomPSTestServer Launcher");
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setUndecorated(true);

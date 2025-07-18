@@ -48,7 +48,7 @@ static bool isBlacklistedDll(LPCWSTR lpLibFileName) {
 }
 
 // kernel32
-static HMODULE WINAPI BoomPSK32LoadLibraryA(LPCSTR lpLibFileName) {
+static HMODULE WINAPI BoomPSTestServerK32LoadLibraryA(LPCSTR lpLibFileName) {
     if (isBlacklistedDll(lpLibFileName)) {
         SetLastError(ERROR_NOT_SUPPORTED);
         return nullptr;
@@ -57,7 +57,7 @@ static HMODULE WINAPI BoomPSK32LoadLibraryA(LPCSTR lpLibFileName) {
     return K32LoadLibraryA(lpLibFileName);
 }
 
-static HMODULE WINAPI BoomPSK32LoadLibraryExA(LPCSTR lpLibFileName, HANDLE hFile, DWORD dwFlags) {
+static HMODULE WINAPI BoomPSTestServerK32LoadLibraryExA(LPCSTR lpLibFileName, HANDLE hFile, DWORD dwFlags) {
     if (isBlacklistedDll(lpLibFileName)) {
         SetLastError(ERROR_NOT_SUPPORTED);
         return nullptr;
@@ -66,7 +66,7 @@ static HMODULE WINAPI BoomPSK32LoadLibraryExA(LPCSTR lpLibFileName, HANDLE hFile
     return K32LoadLibraryExA(lpLibFileName, hFile, dwFlags);
 }
 
-static HMODULE WINAPI BoomPSK32LoadLibraryW(LPCWSTR lpLibFileName) {
+static HMODULE WINAPI BoomPSTestServerK32LoadLibraryW(LPCWSTR lpLibFileName) {
     if (isBlacklistedDll(lpLibFileName)) {
         SetLastError(ERROR_NOT_SUPPORTED);
         return nullptr;
@@ -75,7 +75,7 @@ static HMODULE WINAPI BoomPSK32LoadLibraryW(LPCWSTR lpLibFileName) {
     return K32LoadLibraryW(lpLibFileName);
 }
 
-static HMODULE WINAPI BoomPSK32LoadLibraryExW(LPCWSTR lpLibFileName, HANDLE hFile, DWORD dwFlags) {
+static HMODULE WINAPI BoomPSTestServerK32LoadLibraryExW(LPCWSTR lpLibFileName, HANDLE hFile, DWORD dwFlags) {
     if (isBlacklistedDll(lpLibFileName)) {
         SetLastError(ERROR_NOT_SUPPORTED);
         return nullptr;
@@ -85,7 +85,7 @@ static HMODULE WINAPI BoomPSK32LoadLibraryExW(LPCWSTR lpLibFileName, HANDLE hFil
 }
 
 // kernelbase
-static HMODULE WINAPI BoomPSKBLoadLibraryA(LPCSTR lpLibFileName) {
+static HMODULE WINAPI BoomPSTestServerKBLoadLibraryA(LPCSTR lpLibFileName) {
     if (isBlacklistedDll(lpLibFileName)) {
         SetLastError(ERROR_NOT_SUPPORTED);
         return nullptr;
@@ -93,7 +93,7 @@ static HMODULE WINAPI BoomPSKBLoadLibraryA(LPCSTR lpLibFileName) {
     return KBLoadLibraryA(lpLibFileName);
 }
 
-static HMODULE WINAPI BoomPSKBLoadLibraryExA(LPCSTR lpLibFileName, HANDLE hFile, DWORD dwFlags) {
+static HMODULE WINAPI BoomPSTestServerKBLoadLibraryExA(LPCSTR lpLibFileName, HANDLE hFile, DWORD dwFlags) {
     if (isBlacklistedDll(lpLibFileName)) {
         SetLastError(ERROR_NOT_SUPPORTED);
         return nullptr;
@@ -101,7 +101,7 @@ static HMODULE WINAPI BoomPSKBLoadLibraryExA(LPCSTR lpLibFileName, HANDLE hFile,
     return KBLoadLibraryExA(lpLibFileName, hFile, dwFlags);
 }
 
-static HMODULE WINAPI BoomPSKBLoadLibraryW(LPCWSTR lpLibFileName) {
+static HMODULE WINAPI BoomPSTestServerKBLoadLibraryW(LPCWSTR lpLibFileName) {
     if (isBlacklistedDll(lpLibFileName)) {
         SetLastError(ERROR_NOT_SUPPORTED);
         return nullptr;
@@ -109,7 +109,7 @@ static HMODULE WINAPI BoomPSKBLoadLibraryW(LPCWSTR lpLibFileName) {
     return KBLoadLibraryW(lpLibFileName);
 }
 
-static HMODULE WINAPI BoomPSKBLoadLibraryExW(LPCWSTR lpLibFileName, HANDLE hFile, DWORD dwFlags) {
+static HMODULE WINAPI BoomPSTestServerKBLoadLibraryExW(LPCWSTR lpLibFileName, HANDLE hFile, DWORD dwFlags) {
     if (isBlacklistedDll(lpLibFileName)) {
         SetLastError(ERROR_NOT_SUPPORTED);
         return nullptr;
@@ -147,14 +147,14 @@ extern "C" JNIEXPORT void JNICALL Java_net_runelite_launcher_Launcher_setBlackli
     do {                                                                \
         module##name = (decltype(name) *)GetProcAddress(module, #name); \
         if (module##name != nullptr) {                                  \
-            DetourAttach(&module##name, BoomPS##module##name);        \
+            DetourAttach(&module##name, BoomPSTestServer##module##name);        \
         }                                                               \
     } while (0)
 
 #define Detach(module, name)                                     \
     do {                                                         \
         if (module##name != nullptr) {                           \
-            DetourDetach(&module##name, BoomPS##module##name); \
+            DetourDetach(&module##name, BoomPSTestServer##module##name); \
         }                                                        \
     } while (0)
 

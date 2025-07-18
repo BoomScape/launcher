@@ -1,6 +1,6 @@
 {
   "classPath": [
-    "BoomPS.jar"
+    "BoomPSTestServer.jar"
   ],
   "mainClass": "net.runelite.launcher.Launcher",
   "vmArgs": [
